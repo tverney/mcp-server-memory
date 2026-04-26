@@ -1,5 +1,7 @@
-memory_directory = "~/.agent-memory/memory"
-session_directory = "~/.agent-memory/sessions"
+# NOTE: agent-memory-daemon does not expand ~ (tilde) in paths.
+# Replace /Users/YOU with your actual home path, or use absolute paths.
+memory_directory = "/Users/YOU/.agent-memory/memory"
+session_directory = "/Users/YOU/.agent-memory/sessions"
 
 min_hours = 24
 min_sessions = 5
