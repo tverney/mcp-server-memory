@@ -32,14 +32,22 @@ npm install -g mcp-server-memory
 # or just use npx — Kiro/Claude will spawn it for you
 ```
 
-Also install the daemon (it runs separately):
+### Optional: install the daemon
+
+The MCP server works standalone — it just reads and writes files under `~/.agent-memory/`. Memories persist, but they won't be consolidated or extracted from sessions until you add the daemon.
 
 ```bash
 npm install -g agent-memory-daemon
-agent-memory-daemon init ~/.agent-memory/memconsolidate.toml
-# edit the config to point at ~/.agent-memory/memory and ~/.agent-memory/sessions
+
+# copy the example config
+mkdir -p ~/.agent-memory
+cp examples/memconsolidate.toml ~/.agent-memory/memconsolidate.toml
+
+# start the daemon
 agent-memory-daemon start ~/.agent-memory/memconsolidate.toml
 ```
+
+See [`examples/memconsolidate.toml`](./examples/memconsolidate.toml) for a ready-to-use config that matches the directory layout this MCP server expects.
 
 ## Configure Kiro (CLI and IDE)
 
@@ -56,7 +64,7 @@ Edit `~/.kiro/settings/mcp.json`:
         "SESSION_DIRECTORY": "~/.agent-memory/sessions"
       },
       "disabled": false,
-      "timeout": 30
+      "timeout": 30000
     }
   }
 }

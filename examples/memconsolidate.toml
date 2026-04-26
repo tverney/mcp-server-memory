@@ -1,0 +1,15 @@
+memory_directory = "~/.agent-memory/memory"
+session_directory = "~/.agent-memory/sessions"
+
+min_hours = 24
+min_sessions = 5
+
+extraction_enabled = true
+extraction_interval_ms = 60000
+max_extraction_session_chars = 5000
+
+[llm_backend]
+name = "bedrock"
+region = "us-east-1"
+profile = "default"
+model = "us.anthropic.claude-sonnet-4-20250514-v1:0"
