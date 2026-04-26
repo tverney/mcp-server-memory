@@ -195,10 +195,26 @@ Both paths must match what your `agent-memory-daemon` config uses.
 Tell your agent to call `memory_read` at the start of a conversation and `memory_append_session` at the end. Example steering rule for Kiro (`~/.kiro/steering/memory.md`):
 
 ```
-At the start of every session, call memory_read to load my preferences and context.
+At the start of every session, call memory_read (no arguments) to load my memory
+index. Only pass `topics` when the task genuinely needs the full content of a
+specific topic file.
+
 When you learn something durable about me, my projects, or my preferences, call
-memory_append_session with a concise markdown summary.
+memory_append_session with a concise markdown summary. Target 300-800 tokens,
+use structured headers and bullets (not prose), and focus on durable findings
+and decisions — not play-by-play. Verbose summaries cost more during the
+daemon's consolidation pass.
 ```
+
+## Token usage tips
+
+Each of the three tools has a different cost profile. A few practices keep inference + consolidation bills low:
+
+- **`memory_read` with no arguments** returns only the `MEMORY.md` index (typically <1 KB). Prefer this over `topics` unless you need full content.
+- **`memory_search`** is substring-based and returns ≤3 matching lines per file — cheaper than loading whole topic files.
+- **`memory_append_session`** costs nothing at call time, but every session gets processed by the daemon's LLM during consolidation. Keep summaries concise and structured.
+- Consolidate or prune old topic files occasionally. Run `mcp-agent-memory --configure` — it now warns if your memory directory exceeds 25 files or 200 KB.
+- **Session pruning after extraction** is handled by the daemon, not the MCP server. See `agent-memory-daemon`'s config for options that archive or delete sessions after they're processed (prevents the daemon from re-scanning old sessions forever).
 
 ## License
 

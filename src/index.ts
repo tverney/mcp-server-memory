@@ -68,21 +68,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     {
       name: 'memory_read',
-      description: 'Read the agent memory index (MEMORY.md) and optionally specific topic files. Call this at the start of a conversation to load context.',
+      description: 'Read the agent memory index (MEMORY.md) and optionally specific topic files. Call with no arguments to load only the lightweight index (cheap). Pass `topics` only when you need the full content of a specific topic file.',
       inputSchema: {
         type: 'object',
         properties: {
-          topics: { type: 'array', items: { type: 'string' }, description: 'Optional topic file names to load in full (e.g., ["preferences", "projects"])' },
+          topics: { type: 'array', items: { type: 'string' }, description: 'Optional topic file names to load in full (e.g., ["preferences", "projects"]). Omit to return the index only.' },
         },
       },
     },
     {
       name: 'memory_append_session',
-      description: 'Append a session summary to the sessions directory. The daemon will later extract durable memories from it. Call this at the end of meaningful exchanges.',
+      description: 'Append a session summary to the sessions directory. The daemon will later extract durable memories from it. Call this at the end of meaningful exchanges. Keep summaries focused on durable findings and decisions (target 300-800 tokens), not play-by-play — longer summaries cost more during consolidation.',
       inputSchema: {
         type: 'object',
         properties: {
-          content: { type: 'string', description: 'Markdown-formatted session summary' },
+          content: { type: 'string', description: 'Markdown-formatted session summary. Use structured headers and bullets for better extraction; avoid verbose prose.' },
           source: { type: 'string', description: 'Origin tag, e.g., "kiro", "claude-desktop"' },
         },
         required: ['content'],
