@@ -1,23 +1,41 @@
 {
   "name": "mcp-agent-memory",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server exposing agent-memory-daemon to Kiro, Claude Desktop, Cursor, and any MCP-compatible client.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "mcp-agent-memory": "dist/index.js"
   },
-  "files": ["dist", "scripts", "examples", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "scripts",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["mcp", "model-context-protocol", "kiro", "claude", "agent-memory", "memory"],
-  "repository": { "type": "git", "url": "git+https://github.com/tverney/mcp-server-memory.git" },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "kiro",
+    "claude",
+    "agent-memory",
+    "memory"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tverney/mcp-server-memory.git"
+  },
   "homepage": "https://github.com/tverney/mcp-server-memory",
   "author": "tverney",
   "license": "MIT",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   },
