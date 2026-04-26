@@ -1,6 +1,6 @@
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout, platform } from 'node:process';
-import { readFile, writeFile, mkdir, copyFile, rm, rename } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, copyFile, rm, rename, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { homedir } from 'node:os';
@@ -307,6 +307,22 @@ export async function runSetup(): Promise<void> {
   }
 }
 
+async function checkMemorySize(baseDir: string): Promise<void> {
+  const memDir = join(baseDir, 'memory');
+  if (!existsSync(memDir)) return;
+  const files = (await readdir(memDir)).filter((f) => f.endsWith('.md') && f !== 'MEMORY.md');
+  let totalBytes = 0;
+  for (const f of files) totalBytes += (await stat(join(memDir, f))).size;
+  const totalKb = Math.round(totalBytes / 1024);
+  const WARN_FILES = 25;
+  const WARN_KB = 200;
+  if (files.length > WARN_FILES || totalKb > WARN_KB) {
+    console.log(`\n⚠ Memory directory is getting large: ${files.length} topic files, ~${totalKb} KB total.`);
+    console.log(`  Consider consolidating older topics or deleting stale ones — every memory_read`);
+    console.log(`  with topics pulls these files into the agent's context.`);
+  }
+}
+
 export async function runConfigure(): Promise<void> {
   const rl = createInterface({ input: stdin, output: stdout });
   console.log('\n🔧 mcp-agent-memory reconfigure\n');
@@ -322,6 +338,7 @@ export async function runConfigure(): Promise<void> {
     console.log(`Using memory directory: ${defaultBase}`);
     if (daemonConfigured) console.log(`Current backend: ${currentBackend}`);
     else console.log('No daemon config found — running in MCP-only mode.');
+    await checkMemorySize(defaultBase);
     console.log('');
 
     // Daemon toggle
