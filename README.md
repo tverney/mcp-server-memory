@@ -28,7 +28,7 @@ The daemon does the thinking (consolidation + extraction); this server is a thin
 ## Install
 
 ```bash
-npm install -g mcp-server-memory
+npm install -g mcp-agent-memory
 # or just use npx — Kiro/Claude will spawn it for you
 ```
 
@@ -82,7 +82,7 @@ Edit `~/.kiro/settings/mcp.json`:
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "mcp-server-memory"],
+      "args": ["-y", "mcp-agent-memory"],
       "env": {
         "MEMORY_DIRECTORY": "~/.agent-memory/memory",
         "SESSION_DIRECTORY": "~/.agent-memory/sessions"
@@ -105,7 +105,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "mcp-server-memory"],
+      "args": ["-y", "mcp-agent-memory"],
       "env": {
         "MEMORY_DIRECTORY": "~/.agent-memory/memory",
         "SESSION_DIRECTORY": "~/.agent-memory/sessions"
