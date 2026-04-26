@@ -13,7 +13,7 @@ interface Config {
   backend: 'bedrock' | 'openai' | 'kiro';
   bedrock?: { region: string; profile: string; model: string };
   openai?: { apiKey: string; model: string };
-  kiro?: { model: string };
+  kiro?: Record<string, never>;
   minHours: number;
   minSessions: number;
   extractionIntervalMs: number;
@@ -26,7 +26,6 @@ interface Config {
 
 const DEFAULTS: Omit<Config, 'baseDir' | 'backend' | 'clients' | 'logsDir' | 'logTtlDays'> = {
   bedrock: { region: 'us-east-1', profile: 'default', model: 'us.anthropic.claude-sonnet-4-20250514-v1:0' },
-  kiro: { model: 'claude-sonnet-4-20250514' },
   openai: { apiKey: '', model: 'gpt-4o' },
   minHours: 24,
   minSessions: 5,
@@ -87,7 +86,6 @@ function buildToml(cfg: Config): string {
     if (cfg.openai!.apiKey) lines.push(`api_key = "${cfg.openai!.apiKey}"`);
   } else {
     lines.push(`name = "kiro"`);
-    lines.push(`model = "${cfg.kiro!.model}"`);
   }
 
   return lines.join('\n') + '\n';
@@ -144,9 +142,9 @@ async function promptBackend(rl: ReturnType<typeof createInterface>, current?: s
       apiKey: await ask(rl, 'API key (leave blank to use OPENAI_API_KEY env var)', ''),
     };
   } else {
-    result.kiro = {
-      model: await ask(rl, 'Model', DEFAULTS.kiro!.model),
-    };
+    // Kiro backend uses kiro-cli's default session model — nothing to prompt for.
+    console.log('Kiro backend selected (uses kiro-cli session, no model/region config needed).');
+    result.kiro = {};
   }
   return result;
 }
@@ -187,6 +185,32 @@ async function promptClients(rl: ReturnType<typeof createInterface>): Promise<st
 }
 
 async function installLaunchAgent(baseDir: string, logsDir: string, logTtlDays: number): Promise<void> {
+  const { execSync } = await import('node:child_process');
+
+  // Check if agent-memory-daemon is installed
+  let daemonFound = false;
+  try {
+    execSync('command -v agent-memory-daemon', { stdio: 'ignore' });
+    daemonFound = true;
+  } catch { /* not installed */ }
+
+  if (!daemonFound) {
+    console.log('\n⚠ agent-memory-daemon is not installed (required for LaunchAgent mode).');
+    const rl = createInterface({ input: stdin, output: stdout });
+    const install = await yesNo(rl, 'Install it now (npm i -g agent-memory-daemon)?', true);
+    rl.close();
+    if (!install) {
+      console.log('  Skipping LaunchAgent install. Install manually, then run --configure.');
+      return;
+    }
+    try {
+      execSync('npm install -g agent-memory-daemon', { stdio: 'inherit' });
+    } catch {
+      console.log('⚠ npm install failed. Try manually: npm install -g agent-memory-daemon');
+      return;
+    }
+  }
+
   const scriptsDir = resolve(__dirname, '..', 'scripts');
   const daemonSh = join(scriptsDir, 'daemon.sh');
   if (!existsSync(daemonSh)) {
@@ -194,7 +218,6 @@ async function installLaunchAgent(baseDir: string, logsDir: string, logTtlDays: 
     console.log('  To install manually: clone the repo and run ./scripts/daemon.sh start');
     return;
   }
-  const { execSync } = await import('node:child_process');
   const configPath = join(baseDir, 'memconsolidate.toml');
   try {
     execSync(`bash "${daemonSh}" start "${configPath}"`, {
