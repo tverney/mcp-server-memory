@@ -7,7 +7,7 @@
   "bin": {
     "mcp-agent-memory": "dist/index.js"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": ["dist", "scripts", "examples", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build"

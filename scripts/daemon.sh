@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 # Manage agent-memory-daemon as a macOS LaunchAgent (auto-start at login).
 # Usage: ./scripts/daemon.sh {start|stop|remove|status} [config-path]
+# Env:
+#   LOG_DIR       Override log directory (default: $HOME/.agent-memory/logs)
+#   LOG_TTL_DAYS  Delete *.log older than N days on start (0 or unset = no cleanup)
 set -euo pipefail
 
 LABEL="com.agent-memory-daemon"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
-LOG_DIR="$HOME/.agent-memory/logs"
+LOG_DIR="${LOG_DIR:-$HOME/.agent-memory/logs}"
+LOG_TTL_DAYS="${LOG_TTL_DAYS:-0}"
 CONFIG="${2:-$HOME/.agent-memory/memconsolidate.toml}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE="$SCRIPT_DIR/$LABEL.plist.template"
+
+cleanup_logs() {
+    [[ "$LOG_TTL_DAYS" -gt 0 && -d "$LOG_DIR" ]] || return 0
+    find "$LOG_DIR" -maxdepth 1 -name '*.log' -type f -mtime +"$LOG_TTL_DAYS" -delete 2>/dev/null || true
+}
 
 install_plist() {
     local bin
@@ -26,6 +35,7 @@ install_plist() {
 
 case "${1:-}" in
     start)
+        cleanup_logs
         install_plist
         launchctl unload "$PLIST" 2>/dev/null || true
         launchctl load "$PLIST"

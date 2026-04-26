@@ -29,10 +29,53 @@ The daemon does the thinking (consolidation + extraction); this server is a thin
 
 ```bash
 npm install -g mcp-agent-memory
-# or just use npx — Kiro/Claude will spawn it for you
 ```
 
-### Optional: install the daemon
+## Quick start (interactive wizard)
+
+The fastest way to set everything up — memory directory, daemon, client configs, logs, and LaunchAgent — is the setup wizard:
+
+```bash
+mcp-agent-memory --setup
+```
+
+It asks six questions:
+
+1. **Memory directory** — where `.agent-memory/` lives (default `~/.agent-memory`)
+2. **Install the consolidation daemon?** — say "no" for MCP-only mode (agents can read/write/search memory, but no automatic consolidation)
+3. **LLM backend** — `bedrock`, `openai`, or `kiro` (skipped if you declined the daemon)
+4. **Consolidation settings** — `min_hours`, `min_sessions`, extraction interval, max chars
+5. **Run mode** — `standalone` (start manually) or `launchagent` (auto-start at login, macOS only)
+6. **Logs directory + TTL** — where to put logs, and how many days to keep them (`0` = forever)
+7. **Client registration** — auto-register the MCP server in Kiro, Claude Desktop, and/or Cursor configs (existing MCP entries are preserved)
+
+When you select the `kiro` backend, the wizard also copies a lean agent to `~/.kiro/agents/memconsolidate.json` that cuts token usage by ~7× (see [Kiro backend](#use-kiro-as-the-llm-backend)).
+
+When you select `launchagent`, the wizard checks that `agent-memory-daemon` is installed (and offers to `npm install -g` it if not), then registers and starts the plist.
+
+## CLI reference
+
+```bash
+mcp-agent-memory                       # run as an MCP server (normal mode — clients spawn it)
+mcp-agent-memory --setup               # first-time interactive setup
+mcp-agent-memory --configure           # re-run most steps; can add/remove the daemon later
+mcp-agent-memory --remove              # interactive uninstall (backup memory, clean configs)
+
+# macOS LaunchAgent control:
+mcp-agent-memory --daemon status       # is the daemon running?
+mcp-agent-memory --daemon start        # load and start
+mcp-agent-memory --daemon stop         # unload (keeps the plist)
+mcp-agent-memory --daemon restart      # stop + start
+mcp-agent-memory --daemon remove       # unload and delete the plist
+```
+
+`--remove` preserves other entries in client MCP configs — only the `memory` key is deleted. By default it backs up `~/.agent-memory/` to a timestamped `.bak-*` directory so you can restore your consolidated memories.
+
+## Manual install
+
+If you'd rather skip the wizard, here's how to do it by hand.
+
+### Install the daemon (optional)
 
 The MCP server works standalone — it just reads and writes files under `~/.agent-memory/`. Memories persist, but they won't be consolidated or extracted from sessions until you add the daemon.
 
@@ -86,7 +129,11 @@ The Kiro backend passes `--agent memconsolidate` automatically, so no further co
 
 See [`examples/kiro-agent-memconsolidate.json`](./examples/kiro-agent-memconsolidate.json) — the agent has `mcpServers: {}`, `tools: []`, and `useLegacyMcpJson: false` so it doesn't inherit anything from your global Kiro config.
 
-## Configure Kiro (CLI and IDE)
+## Configure clients manually
+
+> The `--setup` and `--configure` wizards handle this for you. This section is for users who want to wire things up by hand.
+
+### Kiro (CLI and IDE)
 
 Edit `~/.kiro/settings/mcp.json`:
 
@@ -109,7 +156,7 @@ Edit `~/.kiro/settings/mcp.json`:
 
 Then ask Kiro: *"Read my memory index."* or *"Remember this: I prefer pnpm over npm."*
 
-## Configure Claude Desktop
+### Claude Desktop
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
@@ -130,7 +177,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 
 Restart Claude Desktop. The three `memory_*` tools will appear.
 
-## Configure Cursor
+### Cursor
 
 Add to `~/.cursor/mcp.json` with the same server block.
 
