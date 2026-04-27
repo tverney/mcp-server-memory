@@ -1,5 +1,7 @@
 # mcp-server-memory
 
+[![Glama MCP server](https://glama.ai/mcp/servers/tverney/mcp-agent-memory/badges/score.svg)](https://glama.ai/mcp/servers/tverney/mcp-agent-memory)
+
 MCP server that exposes [`agent-memory-daemon`](https://github.com/tverney/agent-memory-daemon) to any MCP-compatible client — **Kiro (CLI & IDE), Claude Desktop, Cursor**, and others.
 
 The daemon does the thinking (consolidation + extraction); this server is a thin filesystem bridge so agents can **read**, **append**, and **search** memory through the Model Context Protocol.
