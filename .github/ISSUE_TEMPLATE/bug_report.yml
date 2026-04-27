@@ -1,0 +1,45 @@
+name: Bug report
+description: Report something that isn't working
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you actually see?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps so I can reproduce this locally.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: mcp-agent-memory version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: client
+    attributes:
+      label: MCP client
+      placeholder: "Kiro CLI 0.8.x / Claude Desktop / Cursor / other"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Node version and OS
+      placeholder: "Node 20.11, macOS 14.5"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste any stderr output from the MCP server or daemon.
+      render: shell
