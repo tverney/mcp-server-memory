@@ -1,6 +1,5 @@
 # mcp-server-memory
 
-[![Glama MCP server](https://glama.ai/mcp/servers/tverney/mcp-agent-memory/badges/score.svg)](https://glama.ai/mcp/servers/tverney/mcp-agent-memory)
 [![mcp-agent-memory MCP server](https://glama.ai/mcp/servers/tverney/mcp-agent-memory/badges/card.svg)](https://glama.ai/mcp/servers/tverney/mcp-agent-memory)
 
 MCP server that exposes [`agent-memory-daemon`](https://github.com/tverney/agent-memory-daemon) to any MCP-compatible client — **Kiro (CLI & IDE), Claude Desktop, Cursor**, and others.
