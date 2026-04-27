@@ -1,6 +1,6 @@
 {
   "name": "mcp-agent-memory",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server exposing agent-memory-daemon to Kiro, Claude Desktop, Cursor, and any MCP-compatible client.",
   "type": "module",
   "main": "dist/index.js",
