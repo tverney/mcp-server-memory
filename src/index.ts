@@ -93,7 +93,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       description: 'Search memory files for a substring. Use this to recall specific facts without loading everything.',
       inputSchema: {
         type: 'object',
-        properties: { query: { type: 'string' } },
+        properties: { query: { type: 'string', description: 'Substring to search for across all memory files (case-insensitive)' } },
         required: ['query'],
       },
     },
