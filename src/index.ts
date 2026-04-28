@@ -5,7 +5,8 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprot
 import { readFile, readdir, appendFile, mkdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { homedir } from 'node:os';
+import { homedir, platform } from 'node:os';
+import { execFile } from 'node:child_process';
 
 const MEMORY_DIR = resolve(process.env.MEMORY_DIRECTORY ?? join(homedir(), '.agent-memory', 'memory'));
 const SESSION_DIR = resolve(process.env.SESSION_DIRECTORY ?? join(homedir(), '.agent-memory', 'sessions'));
@@ -59,6 +60,26 @@ async function searchMemory(query: string): Promise<string> {
   return hits.join('\n\n') || `(no matches for "${query}")`;
 }
 
+const DAEMON_LABEL = 'com.agent-memory-daemon';
+
+function daemonStatus(): Promise<string> {
+  if (platform() !== 'darwin') {
+    return Promise.resolve('The memory daemon is not available in your configuration (macOS LaunchAgent only).');
+  }
+  const plist = join(homedir(), 'Library', 'LaunchAgents', `${DAEMON_LABEL}.plist`);
+  if (!existsSync(plist)) {
+    return Promise.resolve('The memory daemon is not installed in your configuration. Set it up with: mcp-agent-memory --setup');
+  }
+  return new Promise((res) => {
+    execFile('launchctl', ['list', DAEMON_LABEL], (err, stdout) => {
+      if (err) return res(`Daemon is installed but not running.\nPlist: ${plist}`);
+      const pid = stdout.match(/"PID"\s*=\s*(\d+)/)?.[1] ?? 'unknown';
+      const status = stdout.match(/"LastExitStatus"\s*=\s*(\d+)/)?.[1] ?? 'unknown';
+      res(`Daemon is running.\nPID: ${pid}\nLast exit status: ${status}\nPlist: ${plist}`);
+    });
+  });
+}
+
 const server = new Server(
   { name: 'mcp-server-memory', version: '0.1.0' },
   { capabilities: { tools: {} } }
@@ -97,6 +118,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ['query'],
       },
     },
+    {
+      name: 'memory_daemon_status',
+      description: 'Check whether the memory consolidation daemon is running. Reports if the daemon is not installed or not available on this platform.',
+      inputSchema: { type: 'object', properties: {} },
+    },
   ],
 }));
 
@@ -119,6 +145,9 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       const query = String(args?.query ?? '');
       if (!query.trim()) throw new Error('query is required');
       return { content: [{ type: 'text', text: await searchMemory(query) }] };
+    }
+    if (name === 'memory_daemon_status') {
+      return { content: [{ type: 'text', text: await daemonStatus() }] };
     }
     throw new Error(`Unknown tool: ${name}`);
   } catch (err) {

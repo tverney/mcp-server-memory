@@ -26,6 +26,7 @@ The daemon does the thinking (consolidation + extraction); this server is a thin
 | `memory_read` | Load `MEMORY.md` index (and optional topic files) into the agent's context |
 | `memory_append_session` | Write a session summary for the daemon to later extract memories from |
 | `memory_search` | Substring search across memory files |
+| `memory_daemon_status` | Check whether the consolidation daemon is running (macOS LaunchAgent only) |
 
 ## Install
 
@@ -177,7 +178,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 }
 ```
 
-Restart Claude Desktop. The three `memory_*` tools will appear.
+Restart Claude Desktop. The `memory_*` tools will appear.
 
 ### Cursor
 
