@@ -1,4 +1,4 @@
-# mcp-agent-memory
+# A Filesystem MCP for Agent Memory
 
 [![mcp-agent-memory MCP server](https://glama.ai/mcp/servers/tverney/mcp-agent-memory/badges/card.svg)](https://glama.ai/mcp/servers/tverney/mcp-agent-memory)
 
