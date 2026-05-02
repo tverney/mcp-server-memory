@@ -6,6 +6,9 @@ MCP server that exposes [`agent-memory-daemon`](https://github.com/tverney/agent
 
 The daemon does the thinking (consolidation + extraction); this server is a thin filesystem bridge so agents can **read**, **append**, and **search** memory through the Model Context Protocol.
 
+<img width="640" height="351" alt="output" src="https://github.com/user-attachments/assets/95fde776-32f4-4f3c-ad82-70385165bde6" />
+
+
 ## How it fits together
 
 ```
